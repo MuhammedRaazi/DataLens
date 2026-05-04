@@ -3,11 +3,7 @@ import os
 import pandas as pd
 from router import route
 
-st.set_page_config(
-    page_title="DataLens",
-    page_icon="🔬",
-    layout="wide"
-)
+st.set_page_config(page_title="DataLens", page_icon="🔬", layout="wide")
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
@@ -21,7 +17,7 @@ def init_session():
         "file_path": None,
         "file_name": None,
         "df_columns": None,
-        "file_type": None
+        "file_type": None,
     }
     for key, val in defaults.items():
         if key not in st.session_state:
@@ -45,7 +41,7 @@ def sidebar():
         uploaded_file = st.file_uploader(
             "Upload File",
             type=["pdf", "csv"],
-            help="Supports PDF documents and CSV datasets"
+            help="Supports PDF documents and CSV datasets",
         )
 
         if uploaded_file:
@@ -67,6 +63,11 @@ def sidebar():
             st.success(f"{file_icon} {st.session_state.file_name}")
 
             if st.session_state.file_type == "csv" and st.session_state.df_columns:
+                with st.expander("📄 Dataset Preview"):
+                    df_preview = pd.read_csv(st.session_state.file_path).head()
+                    df_preview.columns = [c.lower().strip() for c in df_preview.columns]
+                    st.dataframe(df_preview, use_container_width=True)
+
                 with st.expander("📌 Available Columns"):
                     for col in st.session_state.df_columns:
                         st.code(col)
@@ -90,7 +91,7 @@ def display_chat():
                 st.write(msg["content"])
                 with st.expander("📎 Source Chunks"):
                     for i, src in enumerate(msg["sources"]):
-                        st.caption(f"[{i+1}] {src[:250]}...")
+                        st.caption(f"[{i + 1}] {src[:250]}...")
             else:
                 st.write(msg["content"])
 
@@ -143,23 +144,16 @@ def main():
     question = st.chat_input("Ask a question about your file...")
 
     if question:
-        st.session_state.messages.append({
-            "role": "user",
-            "content": question,
-            "chart": None,
-            "sources": None
-        })
+        st.session_state.messages.append(
+            {"role": "user", "content": question, "chart": None, "sources": None}
+        )
 
         with st.chat_message("user"):
             st.write(question)
 
         with st.chat_message("assistant"):
             with st.spinner("Analyzing..."):
-                result = route(
-                    st.session_state.file_path,
-                    question,
-                    OUTPUT_DIR
-                )
+                result = route(st.session_state.file_path, question, OUTPUT_DIR)
 
             msg = handle_result(result, question)
 
@@ -170,7 +164,7 @@ def main():
                 st.write(msg["content"])
                 with st.expander("📎 Source Chunks"):
                     for i, src in enumerate(msg["sources"]):
-                        st.caption(f"[{i+1}] {src[:250]}...")
+                        st.caption(f"[{i + 1}] {src[:250]}...")
             else:
                 st.write(msg["content"])
 
