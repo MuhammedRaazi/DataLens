@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
-from difflib import get_close_matches
 from uuid import uuid4
 import json
 import os
@@ -247,6 +246,7 @@ def plot_chart(df, config, chart_config, output_dir):
 def generate_insight(question, result, config):
     if hasattr(result, "to_dict"):
         summary = result.to_dict()
+        summary = dict(sorted(summary.items(), key=lambda x: x[1], reverse=True))
     else:
         summary = result
 
@@ -255,6 +255,7 @@ def generate_insight(question, result, config):
             SystemMessage(
                 content=f"""You are a data analyst.
 Give a 2-3 sentence insight using specific numbers.
+Data is sorted highest to lowest. First item is the highest.
 Operation: {config["operation"]} of {config["column"]}
 Result: {summary}"""
             ),

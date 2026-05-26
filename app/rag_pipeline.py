@@ -37,6 +37,8 @@ def chunk_text(full_text):
 
 def build_knowledge_base(pdf_path, chroma_dir, force_rebuild=False):
     global vectorstore
+    pdf_name = os.path.splitext(os.path.basename(pdf_path))[0]
+    chroma_dir = os.path.join(chroma_dir, pdf_name)
 
     if os.path.exists(chroma_dir) and os.listdir(chroma_dir) and not force_rebuild:
         vectorstore = Chroma(

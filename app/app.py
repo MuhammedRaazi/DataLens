@@ -76,6 +76,7 @@ def sidebar():
 
         if st.button("🧹 Clear Chat", use_container_width=True):
             st.session_state.messages = []
+            st.session_state.chroma_rebuilt = False
             st.rerun()
 
         st.caption("Runs 100% locally. No data leaves your machine.")
